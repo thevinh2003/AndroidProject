@@ -20,7 +20,7 @@ Tạo và hoàn thành giao diện trên Figma cho ứng dụng
 - Công việc: Thiết kế giao diện phía khách hàng
 
 ### Thành viên 2:
-- Công việc: Thiết kế giao diện phía khác hàng
+- Công việc: Thiết kế giao diện phía khách hàng
 
 ### Thành viên 3:
 - Công việc: Thiết kế giao diện phía Admin

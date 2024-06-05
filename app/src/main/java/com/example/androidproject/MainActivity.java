@@ -203,7 +203,6 @@ public class MainActivity extends AppCompatActivity {
                 f.mkdir();
 // Open the empty db as the output stream
             OutputStream myOutput = new FileOutputStream(outFileName);
-// transfer bytes from the inputfile to the outputfile
 // Truyền bytes dữ liệu từ input đến output
             int size = myInput.available();
             byte[] buffer = new byte[size];
