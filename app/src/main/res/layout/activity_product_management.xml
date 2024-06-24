@@ -30,7 +30,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
+<<<<<<< HEAD
                 android:fontFamily="sans-serif"
+=======
+                android:fontFamily="@font/armata"
+>>>>>>> f8ddc67064abfd13044fd681c7e835fa6e611fc6
                 android:gravity="center"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
