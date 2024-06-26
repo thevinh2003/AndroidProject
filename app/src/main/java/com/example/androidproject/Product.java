@@ -123,7 +123,7 @@ public class Product implements Serializable {
             if(n != 0) {
                 this.setQuantityInCart(n);
                 //Kieerm tra danh sách sản phẩm trong giỏ hàng
-                quantityInCart(cart).thenAccept(quantitiCart -> {
+                quantityInCart(cart, this.getId()).thenAccept(quantitiCart -> {
                     //Nếu chưa có -> thêm mới
                     if (quantitiCart == 0) {
                         addDetailProductCartAsync(cart.getId(), this.getId(), n).thenAccept(avoid -> {
@@ -186,7 +186,7 @@ public class Product implements Serializable {
         return future;
     }
 
-    public CompletableFuture<Integer> quantityInCart(Cart cart) {
+    public CompletableFuture<Integer> quantityInCart(Cart cart, String productId) {
         CompletableFuture<Integer> future = new CompletableFuture<>();
 
         db.getReference("Detail_ProductCart")
@@ -198,8 +198,7 @@ public class Product implements Serializable {
                         int quantity = 0;
                         for (DataSnapshot childSnapshot : snapshot.getChildren()) {
                             ProductDetailCart detail = childSnapshot.getValue(ProductDetailCart.class);
-                            if (detail != null && detail.getProductId().equals(Product.this.getId())) {
-
+                            if (detail != null && detail.getProductId().equals(productId)) {
                                 quantity += detail.getQuantity();
                             }
                         }

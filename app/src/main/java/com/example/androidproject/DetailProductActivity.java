@@ -1,7 +1,9 @@
 package com.example.androidproject;
 
+import android.accounts.Account;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -13,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.example.androidproject.Cart;
+import com.example.androidproject.Product;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -23,11 +27,12 @@ import java.util.concurrent.CompletableFuture;
 public class DetailProductActivity extends AppCompatActivity {
     FirebaseDatabase db = FirebaseDatabase.getInstance();
     TextView txtProductPriceInDetail, txtProductNameInDetail, txtProductDescriptionInDetail,
-            txtBackFromDetailToHomepage, txtToMoneyInDetail, txtOrderFromDetail;
+            txtBackFromDetailToHomepage, txtToMoneyInDetail, txtOrderFromDetail, txtLinkReview;
     EditText txtProductQuantityInCart;
     Product productToDetail;
     String idProduct;
     Cart cart;
+    Account user;
     ImageView imgProductInDetail, imgVAddProductToCartInDetail, imgVDeleteProductFromCartInDetail;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,10 +47,13 @@ public class DetailProductActivity extends AppCompatActivity {
         txtOrderFromDetail = findViewById(R.id.txtOrderFromDetail);
         imgProductInDetail = findViewById(R.id.imgProductInDetail);
         txtToMoneyInDetail = findViewById(R.id.txtToMoneyInDetail);
+        txtLinkReview = findViewById(R.id.txtLinkReview);
         imgVAddProductToCartInDetail = findViewById(R.id.imgVAddProductToCartInDetail);
         imgVDeleteProductFromCartInDetail = findViewById(R.id.imgVDeleteProductFromCartInDetail);
         cart = (Cart) getIntent().getSerializableExtra("Cart");
         idProduct = getIntent().getStringExtra("product");
+        user = (Account) getIntent().getSerializableExtra("user");
+        txtLinkReview.setText(Html.fromHtml(getString(R.string.link)));
 
         showDetailProduct();
 
@@ -53,6 +61,8 @@ public class DetailProductActivity extends AppCompatActivity {
         imgVAddProductToCartInDetail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                imgVAddProductToCartInDetail.setEnabled(false);
+                imgVDeleteProductFromCartInDetail.setEnabled(false);
                 int n = Integer.parseInt(txtProductQuantityInCart.getText().toString());
                 txtProductQuantityInCart.setText(String.valueOf(n+1));
                 productToDetail.updateProductQuantityToCart(cart, txtProductQuantityInCart, DetailProductActivity.this)
@@ -60,6 +70,8 @@ public class DetailProductActivity extends AppCompatActivity {
                             showDetailProduct().thenAccept(info -> {
                                 txtProductQuantityInCart.setText(String.valueOf(n+1));
                                 txtToMoneyInDetail.setText("Thành tiền: " + productToDetail.toMoney(n+1));
+                                imgVAddProductToCartInDetail.setEnabled(true);
+                                imgVDeleteProductFromCartInDetail.setEnabled(true);
                             }).exceptionally(ex -> {
                                 // Xử lý trường hợp ngoại lệ (nếu có)
                                 Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();
@@ -78,6 +90,8 @@ public class DetailProductActivity extends AppCompatActivity {
         imgVDeleteProductFromCartInDetail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                imgVAddProductToCartInDetail.setEnabled(false);
+                imgVDeleteProductFromCartInDetail.setEnabled(false);
                 int n = Integer.parseInt(txtProductQuantityInCart.getText().toString());
                 txtProductQuantityInCart.setText(String.valueOf(n-1));
                 if (n == 1) {
@@ -85,6 +99,8 @@ public class DetailProductActivity extends AppCompatActivity {
                             .thenAccept(result -> {
                                 showDetailProduct().thenAccept(info -> {
                                     txtToMoneyInDetail.setText("Thành tiền: 0.0");
+                                    imgVAddProductToCartInDetail.setEnabled(true);
+                                    imgVDeleteProductFromCartInDetail.setEnabled(true);
                                 }).exceptionally(ex -> {
                                     // Xử lý trường hợp ngoại lệ (nếu có)
                                     Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();
@@ -102,6 +118,8 @@ public class DetailProductActivity extends AppCompatActivity {
                     productToDetail.updateProductQuantityToCart(cart, txtProductQuantityInCart, DetailProductActivity.this)
                             .thenAccept(result -> {
                                 txtToMoneyInDetail.setText("Thành tiền: " + productToDetail.toMoney(n-1));
+                                imgVAddProductToCartInDetail.setEnabled(true);
+                                imgVDeleteProductFromCartInDetail.setEnabled(true);
                             })
                             .exceptionally(ex -> {
                                 // Xử lý trường hợp ngoại lệ (nếu có)
@@ -116,7 +134,7 @@ public class DetailProductActivity extends AppCompatActivity {
         txtOrderFromDetail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                productToDetail.quantityInCart(cart).thenAccept(quantityCart -> {
+                productToDetail.quantityInCart(cart, productToDetail.getId()).thenAccept(quantityCart -> {
                     if(quantityCart > 0){
                         Intent intent = new Intent(DetailProductActivity.this, BillActivity.class);
 //                        intent.putExtra("ProductFromDetail", productToDetail);
@@ -136,25 +154,21 @@ public class DetailProductActivity extends AppCompatActivity {
             }
         });
 
-////         quantity sản phẩm
-//        productToDetail.getQuantityProduct(productToDetail.getId())
-//                .thenAccept(quantity -> {
-//                    // Xử lý kết quả số lượng sản phẩm ở đây
-//                    productToDetail.setQuantity(quantity);
-//                })
-//                .exceptionally(e -> {
-//                    // Xử lý nếu có lỗi xảy ra khi lấy số lượng sản phẩm
-//                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-//                    return null;
-//                });
-
-
+        txtLinkReview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intentReview = new Intent(DetailProductActivity.this, ReviewActivity.class);
+                intentReview.putExtra("user", user);
+                intentReview.putExtra("productId", idProduct);
+                startActivity(intentReview);
+            }
+        });
     }
 
     public CompletableFuture<Void> showDetailProduct() {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
-        db.getReference("Product").child(idProduct).addListenerForSingleValueEvent(new ValueEventListener() {
+        db.getReference("Product").child(idProduct).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 productToDetail = snapshot.getValue(Product.class);
@@ -182,7 +196,7 @@ public class DetailProductActivity extends AppCompatActivity {
                 txtProductDescriptionInDetail.setText(productToDetail.getDescription());
 
                 // Xử lý bất đồng bộ
-                CompletableFuture<Integer> quantityInCartFuture = productToDetail.quantityInCart(cart);
+                CompletableFuture<Integer> quantityInCartFuture = productToDetail.quantityInCart(cart, productToDetail.getId());
                 CompletableFuture<Integer> quantityVisibleFuture = productToDetail.checkQuantityVisible();
                 CompletableFuture.allOf(quantityInCartFuture, quantityVisibleFuture).thenRun(() -> {
                     try {
@@ -246,7 +260,12 @@ public class DetailProductActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-//        checkQuantity(productToDetail.quantityInCart(cart));
-//        txtToMoneyInDetail.setText("Thành tiền: " + productToDetail.toMoney(productToDetail.quantityInCart(cart, database)));
+//        productToDetail.quantityInCart(cart, productToDetail.getId()).thenAccept(quantity -> {
+//            checkQuantity(quantity);
+//            txtToMoneyInDetail.setText("Thành tiền: " + productToDetail.toMoney(quantity));
+//        }).exceptionally(ex -> {
+//            Log.e("Error", "Failed ", ex);
+//            return null;
+//        });
     }
 }

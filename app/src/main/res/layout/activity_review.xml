@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/white"
-    tools:context=".ManagementHomepageActivity">
+    tools:context=".ReviewActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,11 +26,11 @@
             app:cardUseCompatPadding="true">
 
             <TextView
-                android:id="@+id/txtBackToManagementHomepageFromProduct"
+                android:id="@+id/txtBackFromReview"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
-                android:fontFamily="sans-serif"
+                android:fontFamily="@font/armata"
                 android:gravity="center"
                 android:paddingStart="20dp"
                 android:paddingEnd="20dp"
@@ -47,23 +47,23 @@
             android:fontFamily="sans-serif"
             android:gravity="center_vertical"
             android:paddingStart="10dp"
-            android:text="Quản lý sản phẩm"
+            android:text="Đánh giá của khách hàng"
             android:textSize="21sp"
             android:textStyle="bold" />
 
     </LinearLayout>
-
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <ListView
-            android:id="@+id/lvProduct"
+            android:id="@+id/lvReviews"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:padding="10dp"
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="0dp" />
 
         <androidx.cardview.widget.CardView
             android:layout_width="88dp"
@@ -83,7 +83,7 @@
             tools:ignore="MissingConstraints">
 
             <TextView
-                android:id="@+id/txtVAddProduct"
+                android:id="@+id/txtAddReview"
                 android:layout_width="45dp"
                 android:layout_height="50dp"
                 android:layout_gravity="center"
@@ -93,6 +93,5 @@
                 android:textSize="35sp" />
         </androidx.cardview.widget.CardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 
 </LinearLayout>

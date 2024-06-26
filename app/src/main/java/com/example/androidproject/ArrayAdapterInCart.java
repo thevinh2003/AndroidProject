@@ -319,7 +319,7 @@ public class ArrayAdapterInCart extends ArrayAdapter<Product> {
     }
 
     public void checkEnable(Product myProduct, int position){
-        CompletableFuture<Integer> quantityInCartFuture = myProduct.quantityInCart(cart);
+        CompletableFuture<Integer> quantityInCartFuture = myProduct.quantityInCart(cart, myProduct.getId());
         CompletableFuture<Integer> quantityVisibleFuture = myProduct.checkQuantityVisible();
         CompletableFuture.allOf(quantityInCartFuture, quantityVisibleFuture).thenRun(() -> {
             try {

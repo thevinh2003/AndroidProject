@@ -2,9 +2,10 @@ package com.example.androidproject;
 
 public class Bill {
     private String id;
-    private String userName;
+    private String userId;
     private Double total = 0.0;
     private String createDay = null;
+    private String status;
 
     private String address;
 
@@ -12,31 +13,41 @@ public class Bill {
         return id;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
     public void setId(String idBill) {
         this.id = idBill;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public Bill() {}
 
-    public Bill(String userName, String createDay, Double total) {
-        this.userName = userName;
+    public Bill(String userId, String createDay, Double total, String status) {
+        this.userId = userId;
         this.createDay = createDay;
         this.total = total;
+        this.status = status;
     }
-    public Bill(String id, String userName, String createDay, Double total, String address) {
+    public Bill(String id, String userId, String createDay, Double total, String address, String status) {
         this.id = id;
-        this.userName = userName;
+        this.userId = userId;
         this.createDay = createDay;
         this.total = total;
         this.address = address;
+        this.status = status;
     }
 
     public Double getToTal() {

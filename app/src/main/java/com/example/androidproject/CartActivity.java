@@ -76,7 +76,7 @@ public class CartActivity extends AppCompatActivity {
                     ArrayList<Product> tmpListProductInCart = new ArrayList<>();
                     tmpListProductInCart.addAll(myListProductInCart);
                     for (Product product:myListProductInCart) {
-                        CompletableFuture<Integer> quantityInCartFuture = product.quantityInCart(cart);
+                        CompletableFuture<Integer> quantityInCartFuture = product.quantityInCart(cart, product.getId());
                         CompletableFuture<Integer> quantityVisibleFuture = product.checkQuantityVisible();
                         CompletableFuture.allOf(quantityInCartFuture, quantityVisibleFuture).thenRun(() -> {
                             try {
