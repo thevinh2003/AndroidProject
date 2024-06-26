@@ -26,10 +26,10 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="Lấy lại mật khẩu của bạn"
+                android:padding="20dp"
+                android:text="Địa chỉ"
                 android:textSize="20sp"
-                android:textStyle="bold"
-                android:padding="20dp" />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/textViewb"
@@ -44,20 +44,20 @@
                 android:id="@+id/textViewc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Vui lòng nhập email để lấy lại mật khẩu"
-                android:textSize="18sp"
+                android:layout_marginBottom="8dp"
                 android:paddingStart="20dp"
-                android:layout_marginBottom="8dp"/>
+                android:text="Vui lòng nhập địa chỉ"
+                android:textSize="18sp" />
 
             <EditText
-                android:id="@+id/edtEmailInForgetPassword"
+                android:id="@+id/edtAddressInBill"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
                 android:layout_marginEnd="20dp"
                 android:layout_marginBottom="10dp"
                 android:background="@drawable/custom_input"
-                android:hint="Email của bạn"
+                android:hint="Nhập địa chỉ ..."
                 android:padding="20dp" />
 
             <LinearLayout
