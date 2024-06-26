@@ -198,6 +198,7 @@ public class Product implements Serializable {
                         int quantity = 0;
                         for (DataSnapshot childSnapshot : snapshot.getChildren()) {
                             ProductDetailCart detail = childSnapshot.getValue(ProductDetailCart.class);
+
                             if (detail != null && detail.getProductId().equals(productId)) {
                                 quantity += detail.getQuantity();
                             }

@@ -16,6 +16,11 @@ public class AccountService {
         this.db = FirebaseDatabase.getInstance().getReference("Account");
     }
 
+    public static String encryptPassword(String password) {
+        String encryptedPassword = PasswordUtils.encryptPassword(password);
+        return encryptedPassword;
+    }
+
     public CompletableFuture<String> getUserNameById(String id) {
         CompletableFuture<String> future = new CompletableFuture<>();
 

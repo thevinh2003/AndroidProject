@@ -32,10 +32,24 @@ import java.util.ArrayList;
 public class HomePageActivity extends AppCompatActivity {
     GridView gvProductInHomePage;
     TabHost tabHost;
+    TabHost tabHostHis;
     SearchView svProductInHomePage;
     TextView txtNumberProductOfCart;
     ImageView imgBtnCartInHomePage;
     Cart cart;
+    ListView lvBillHistory, lvHisWait, lvHisShipping, lvHisFinish;
+    ArrayList<Product> myListProduct, displayedProducts, myListProductToCategory;
+    ArrayAdapterInHomePage myAdapterInHomePage;
+    ArrayAdapterHistory myArrayAdapterInHistory;
+    ArrayList<Bill> myListBill;
+    ArrayList<Category> myListCategory;
+    int currentTab = 1, currentItemInSpn = 0, currentTabHis = 1;
+    long backPressTime;
+    Spinner spnCategoryInHomePage;
+    FirebaseDatabase db = FirebaseDatabase.getInstance();
+    DatabaseReference myRef;
+    Boolean isTabHostSetup = false;
+    Account user;
     ListView lvBillHistory;
     ArrayList<Product> myListProduct, displayedProducts, myListProductToCategory;
     ArrayAdapterInHomePage myAdapterInHomePage;
@@ -53,6 +67,10 @@ public class HomePageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
+        cart = new Cart();
+        user = new Account();
+        user = (Account) getIntent().getSerializableExtra("user");
+
         db = FirebaseDatabase.getInstance();
         cart = new Cart();
         getCartByUserName();
@@ -84,6 +102,11 @@ public class HomePageActivity extends AppCompatActivity {
         //Định nghĩa tabHost
         tabHost = findViewById(R.id.tabHost);
         tabHost.setup();
+        TabHost.TabSpec spec1, spec2, spec3;
+        //Tab1
+        spec1 = tabHost.newTabSpec("t1");
+        spec1.setContent(R.id.tab_homepage);
+        spec1.setIndicator("", getResources().getDrawable(R.drawable.clutter));
         TabHost.TabSpec spec1, spec2;
         //Tab1
         spec1 = tabHost.newTabSpec("t1");
@@ -93,6 +116,13 @@ public class HomePageActivity extends AppCompatActivity {
         //Tab2
         spec2 = tabHost.newTabSpec("t2");
         spec2.setContent(R.id.tab_history);
+        spec2.setIndicator("", getResources().getDrawable(R.drawable.heart_yellow));
+        tabHost.addTab(spec2);
+        // Tab3
+        spec3 = tabHost.newTabSpec("t3");
+        spec3.setContent(R.id.tab_favorite);
+        spec3.setIndicator("", getResources().getDrawable(R.drawable.oder_history));
+        tabHost.addTab(spec3);
         spec2.setIndicator("", getResources().getDrawable(R.drawable.history));
         tabHost.addTab(spec2);
 
@@ -100,6 +130,11 @@ public class HomePageActivity extends AppCompatActivity {
         tabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
             public void onTabChanged(String tabId) {
+                if (tabId.equals("t3")) {
+                    tab2_action();
+                }
+                if (tabId.equals("t2")) {
+                    Toast.makeText(HomePageActivity.this, "Chưa có sản phẩm yêu thích", Toast.LENGTH_SHORT).show();
                 if (tabId.equals("t2")) {
                     tab2_action();
                 }
@@ -114,6 +149,7 @@ public class HomePageActivity extends AppCompatActivity {
         gvProductInHomePage = findViewById(R.id.gvProductInHomePage);
         txtNumberProductOfCart = findViewById(R.id.txtNumberProductOfCart);
         imgBtnCartInHomePage = findViewById(R.id.imgBtnCartInHomePage);
+//        lvBillHistory = findViewById(R.id.lvBillHistory);
         lvBillHistory = findViewById(R.id.lvBillHistory);
         spnCategoryInHomePage = findViewById(R.id.spnCategoryInHomePage);
         myListProduct = new ArrayList<>();
@@ -188,6 +224,7 @@ public class HomePageActivity extends AppCompatActivity {
                 Product SelectProduct = myListProduct.get(position);
                 intentToDetailActivity.putExtra("product", SelectProduct.getId());
                 intentToDetailActivity.putExtra("Cart", cart);
+                intentToDetailActivity.putExtra("user", user);
                 startActivity(intentToDetailActivity);
             }
         });
@@ -221,6 +258,85 @@ public class HomePageActivity extends AppCompatActivity {
 
     //Tab lịch sử đơn hàng
     public void tab2_action(){
+        tabHostHis = findViewById(R.id.tabHostHis);
+        lvHisWait = findViewById(R.id.lvHisWait);
+        lvHisShipping = findViewById(R.id.lvHisShipping);
+        lvHisFinish = findViewById(R.id.lvHisFinish);
+        myListBill = new ArrayList<>();
+        setUpTab();
+        tabHostHis.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
+            @Override
+            public void onTabChanged(String tabId) {
+                if (tabId.equals("t1")) {
+                    tab_wait();
+                }
+                else if (tabId.equals("t2")) {
+                    tab_shipping();
+                }
+                else {
+                    tab_finish();
+                }
+            }
+        });
+        tab_wait();
+    }
+    private void setUpTab() {
+        if (!isTabHostSetup) {
+            tabHostHis.setup();
+            TabHost.TabSpec spec1, spec2, spec3;
+            //Tab1
+            spec1 = tabHostHis.newTabSpec("t1");
+            spec1.setContent(R.id.tab_his_wait);
+            spec1.setIndicator("Chờ đơn", getResources().getDrawable(R.drawable.history));
+            tabHostHis.addTab(spec1);
+            //Tab2
+            spec2 = tabHostHis.newTabSpec("t2");
+            spec2.setContent(R.id.tab_his_shipping);
+            spec2.setIndicator("Chờ giao hàng", getResources().getDrawable(R.drawable.history));
+            tabHostHis.addTab(spec2);
+            // Tab3
+            spec3 = tabHostHis.newTabSpec("t3");
+            spec3.setContent(R.id.tab_his_finish);
+            spec3.setIndicator("Đã giao", getResources().getDrawable(R.drawable.history));
+            tabHostHis.addTab(spec3);
+
+            isTabHostSetup = true;
+        }
+    }
+    private void tab_wait() {
+        currentTabHis = 1;
+        showDataTab("wait", lvHisWait);
+    }
+    private void tab_shipping() {
+        currentTabHis = 2;
+        showDataTab("shipping", lvHisShipping);
+    }
+    private void tab_finish() {
+        currentTabHis = 3;
+        showDataTab("finish", lvHisFinish);
+    }
+
+    private void showDataTab(String status, ListView lv) {
+        myListBill.clear();
+        db.getReference("Bill").orderByChild("userId").equalTo(cart.getUserId()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                ArrayList<Bill> bills = new ArrayList<>();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Bill bill = snapshot.getValue(Bill.class);
+                    if (bill != null && status.equals(bill.getStatus())) {
+                        bills.add(bill);
+                    }
+                }
+                myListBill = bills;
+                myArrayAdapterInHistory = new ArrayAdapterHistory(HomePageActivity.this, R.layout.layout_item_bill_history, myListBill);
+                lv.setAdapter(myArrayAdapterInHistory);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
 //        currentTab = 2;
 //        lvBillHistory = findViewById(R.id.lvBillHistory);
 //        myListBill = new ArrayList<>();
@@ -367,6 +483,10 @@ public class HomePageActivity extends AppCompatActivity {
     }
 
     private void loadProducts() {
+        db.getReference("Product").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                myListProduct.clear();
         myListProduct.clear();
         db.getReference("Product").addValueEventListener(new ValueEventListener() {
             @Override
@@ -375,6 +495,7 @@ public class HomePageActivity extends AppCompatActivity {
                     Product product = userSnapshot.getValue(Product.class);
                     myListProduct.add(product);
                 }
+//                myAdapterInHomePage.notifyDataSetChanged();
                 myAdapterInHomePage.notifyDataSetChanged();
                 myListProductToCategory.addAll(myListProduct);
                 myAdapterInHomePage = new ArrayAdapterInHomePage(HomePageActivity.this, R.layout.layout_product_homepage, myListProductToCategory);
@@ -391,6 +512,10 @@ public class HomePageActivity extends AppCompatActivity {
 
     private void getCartByUserName() {
         //Lấy ra userName để lấy đúng giỏ hàng của người dùng
+        String cartId = getIntent().getStringExtra("cartId");
+        cart.setId(cartId);
+        cart.setUserId(user.getId());
+
         userName = getIntent().getStringExtra("userName");
         String cartId = getIntent().getStringExtra("cartId");
         cart.setId(cartId);

@@ -44,10 +44,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         FirebaseApp.initializeApp(this);
-        //Xóa CSDL trong device
-        //        deleteDatabase("qlSP.db");
-        //Copy CSDL từ asset vào device
-//                processCopy();
         edtUserName = findViewById(R.id.UserName);
         edtPassword = findViewById(R.id.PassWord);
         txtForgetPassword = findViewById(R.id.txtForgetPassword);
@@ -55,8 +51,7 @@ public class MainActivity extends AppCompatActivity {
         edtPassword.setText("");
         btnLogin = findViewById(R.id.btnLogin);
         txtToRegisterActivity = findViewById(R.id.txtToRegisterActivity);
-        database = openOrCreateDatabase("qlSP.db", MODE_PRIVATE, null);
-        db = FirebaseDatabase.getInstance();
+        db = new FirebaseDataBaseHelper().getFirebaseDatabase();
         myRef = db.getReference("Account");
         //Xử lý sự kiện khi người dùng yêu cầu đăng ký -> chuyển đến activity đăng ký
         txtToRegisterActivity.setOnClickListener(new View.OnClickListener() {
@@ -181,6 +176,7 @@ public class MainActivity extends AppCompatActivity {
         builder.setView(dialogView);
         TextView txtCancelInForgetPassword = dialogView.findViewById(R.id.txtCancelInForgetPassword);
         TextView txtSubmitInForgetPassword = dialogView.findViewById(R.id.txtSubmitInForgetPassword);
+        EditText edtPhoneInForgetPassword = dialogView.findViewById(R.id.txtPhoneInForgetPassword);
         EditText edtPhoneInForgetPassword = dialogView.findViewById(R.id.edtPhonelInForgetPassword);
         AlertDialog dialog2 = builder.create();
         txtCancelInForgetPassword.setOnClickListener(new View.OnClickListener() {
@@ -192,11 +188,71 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 String phone = edtPhoneInForgetPassword.getText().toString().trim();
                 if(phone.isEmpty()){
+                    edtPhoneInForgetPassword.setError("Vui lòng nhập email");
                     edtPhoneInForgetPassword.setError("Vui lòng nhập số điện thoại");
                     edtPhoneInForgetPassword.requestFocus();
                     return;
                 }
                 else{
+                    try {
+                        FirebaseDatabase db = new FirebaseDataBaseHelper().getFirebaseDatabase();
+                        DatabaseReference myRef = db.getReference("Account");
+                        myRef.orderByChild("phoneNumber").equalTo(phone).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                boolean userFound = false;
+                                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                                    String dbPhone = userSnapshot.child("phoneNumber").getValue(String.class);
+                                    if (dbPhone != null && dbPhone.equals(phone)) {
+                                        userFound = true;
+                                        break;
+                                    }
+                                }
+                                if (!userFound) {
+                                    Toast.makeText(MainActivity.this, "SDT không tồn tại", Toast.LENGTH_SHORT).show();
+                                }
+                                else {
+                                    FirebaseAuth db = FirebaseAuth.getInstance();
+                                    String formatedPhoneNumber = "+84" + phone.substring(1);
+                                    PhoneAuthOptions options = PhoneAuthOptions.newBuilder(db)
+                                            .setPhoneNumber(formatedPhoneNumber)
+                                            .setTimeout(60L, TimeUnit.SECONDS)
+                                            .setActivity(MainActivity.this)
+                                            .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                                                @Override
+                                                public void onVerificationFailed(@NonNull FirebaseException e) {
+                                                    Log.e("OTP", e.getMessage());
+                                                    Toast.makeText(MainActivity.this, "Gửi OTP thất bại", Toast.LENGTH_SHORT).show();
+                                                }
+
+                                                @Override
+                                                public void onCodeSent(@NonNull String verificationId,
+                                                                       @NonNull PhoneAuthProvider.ForceResendingToken token) {
+                                                    android.content.Intent intent = new android.content.Intent(MainActivity.this, OTPVerify.class);
+                                                    intent.putExtra("verificationId", verificationId);
+                                                    intent.putExtra("type", "forgot");
+                                                    intent.putExtra("phone", phone);
+                                                    startActivity(intent);
+                                                }
+
+                                                @Override
+                                                public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
+
+                                                }
+                                            }).build();
+                                    PhoneAuthProvider.verifyPhoneNumber(options);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                Toast.makeText(MainActivity.this, "Error getting data", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                    catch (Exception e){
+                        Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
                     FirebaseAuth db = FirebaseAuth.getInstance();
                     String formatedPhoneNumber = "+84" + phone.substring(1);
                     PhoneAuthOptions options = PhoneAuthOptions.newBuilder(db)
@@ -290,50 +346,4 @@ public class MainActivity extends AppCompatActivity {
         dialog2.show();
 
     }
-
-
-    //Copy cơ sở dữ liệu từ thư mục assets vào project
-//    private void processCopy() {
-////private app
-//        File dbFile = getDatabasePath(DATABASE_NAME);
-//        if (!dbFile.exists())
-//        {
-//            try{CopyDataBaseFromAsset();
-//                Toast.makeText(this, "Copying sucess from Assets folder",
-//                        Toast.LENGTH_LONG).show();
-//            }
-//            catch (Exception e){
-//                Toast.makeText(this, e.toString(), Toast.LENGTH_LONG).show();
-//            }
-//        }
-//    }
-//    private String getDatabasePath() {
-//        return getApplicationInfo().dataDir + DB_PATH_SUFFIX+ DATABASE_NAME;
-//    }
-//    public void CopyDataBaseFromAsset() {
-//        try {
-//            InputStream myInput;
-//            myInput = getAssets().open(DATABASE_NAME);
-//// Path to the just created empty db
-//            String outFileName = getDatabasePath();
-//// if the path doesn't exist first, create it
-//            File f = new File(getApplicationInfo().dataDir + DB_PATH_SUFFIX);
-//            if (!f.exists())
-//                f.mkdir();
-//// Open the empty db as the output stream
-//            OutputStream myOutput = new FileOutputStream(outFileName);
-//// transfer bytes from the inputfile to the outputfile
-//// Truyền bytes dữ liệu từ input đến output
-//            int size = myInput.available();
-//            byte[] buffer = new byte[size];
-//            myInput.read(buffer);
-//            myOutput.write(buffer);
-//// Close the streams
-//            myOutput.flush();
-//            myOutput.close();
-//            myInput.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 }
