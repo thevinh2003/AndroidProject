@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 public class Cart implements Serializable {
     private String id;
-    private String userName;
+    private String userId;
     int ProductQuantity;
     private double total = 0.0;
     private double tax = 0.0;
@@ -14,16 +14,16 @@ public class Cart implements Serializable {
         return id;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
     public void setId(String id) {
         this.id = id;
     }
 
-    public void setIdUser(String username) {
-        this.userName = username;
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public int getProductQuantity() {
@@ -36,9 +36,9 @@ public class Cart implements Serializable {
 
     public Cart() {}
 
-    public Cart(String id, String username) {
+    public Cart(String id, String userId) {
         this.id = id;
-        this.userName = username;
+        this.userId = userId;
     }
 
     public void updateTotalInCart(ArrayList<Product> listProductSelect){

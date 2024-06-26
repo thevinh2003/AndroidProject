@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/white"
-    tools:context=".ReviewActivity">
+    tools:context=".CategoryManagementActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -66,32 +66,32 @@
             tools:layout_editor_absoluteY="0dp" />
 
         <androidx.cardview.widget.CardView
-            android:layout_width="88dp"
-            android:layout_height="88dp"
-            android:layout_margin="5dp"
-            android:layout_marginEnd="30dp"
-            android:layout_marginBottom="30dp"
-            android:background="@drawable/add"
-            app:cardCornerRadius="15dp"
-            app:cardElevation="6dp"
-            app:cardMaxElevation="10dp"
-            app:cardPreventCornerOverlap="true"
-            app:cardUseCompatPadding="true"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:cardBackgroundColor="#389FD6"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:ignore="MissingConstraints">
+                    android:layout_width="88dp"
+                    android:layout_height="88dp"
+                    android:layout_margin="5dp"
+                    android:layout_marginEnd="30dp"
+                    android:layout_marginBottom="30dp"
+                    android:background="@drawable/add"
+                    app:cardCornerRadius="15dp"
+                    app:cardElevation="6dp"
+                    app:cardMaxElevation="10dp"
+                    app:cardPreventCornerOverlap="true"
+                    app:cardUseCompatPadding="true"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:cardBackgroundColor="#389FD6"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    tools:ignore="MissingConstraints">
 
-            <TextView
-                android:id="@+id/txtAddReview"
-                android:layout_width="45dp"
-                android:layout_height="50dp"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:text="+"
-                android:textColor="@color/white"
-                android:textSize="35sp" />
-        </androidx.cardview.widget.CardView>
+                    <TextView
+                        android:id="@+id/txtAddReview"
+                        android:layout_width="45dp"
+                        android:layout_height="50dp"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:text="+"
+                        android:textColor="@color/white"
+                        android:textSize="35sp" />
+                </androidx.cardview.widget.CardView>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

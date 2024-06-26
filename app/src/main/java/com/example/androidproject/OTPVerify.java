@@ -1,6 +1,5 @@
 package com.example.androidproject;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -26,7 +25,7 @@ public class OTPVerify extends AppCompatActivity {
     EditText etOtp1, etOtp2, etOtp3, etOtp4, etOtp5, etOtp6;
     Button btnConfirm;
     EditText[] otpEditTexts;
-    FirebaseAuth mAuth;
+    private FirebaseAuth mAuth;
     FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
     String phone;
     private String verificationId;
@@ -36,8 +35,6 @@ public class OTPVerify extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_otpverify);
-
-        mAuth = FirebaseAuth.getInstance();
 
         etOtp1 = findViewById(R.id.et_otp_1);
         etOtp2 = findViewById(R.id.et_otp_2);
@@ -158,7 +155,7 @@ public class OTPVerify extends AppCompatActivity {
             }
         });
 
-        Intent intent = getIntent();
+        android.content.Intent intent = getIntent();
         verificationId = intent.getStringExtra("verificationId");
         phone = intent.getStringExtra("phone");
         type = intent.getStringExtra("type");
@@ -191,17 +188,21 @@ public class OTPVerify extends AppCompatActivity {
                             CompletableFuture<Void> updateFuture = updateActiveStatusByPhoneNumber(phone);
                             updateFuture.thenAccept(aVoid -> {
                                 Toast.makeText(OTPVerify.this, "Xác minh thành công", Toast.LENGTH_SHORT).show();
-                                Intent intent = new Intent(OTPVerify.this, com.example.project_btl_android.MainActivity.class);
+                                android.content.Intent intent = new android.content.Intent(OTPVerify.this, MainActivity.class);
                                 startActivity(intent);
                             }).exceptionally(ex -> {
                                 Toast.makeText(getApplicationContext(), "Đã xảy ra lỗi: " + ex.getMessage(), Toast.LENGTH_SHORT).show();
                                 return null;
                             });
+
+
+//                        updateIsVerify(phone);
+//                        Toast.makeText(OTPVerify.this, "Xác minh thành công", Toast.LENGTH_SHORT).show();
+//                        android.content.Intent intent = new android.content.Intent(OTPVerify.this, MainActivity.class);
+//                        startActivity(intent);
                         }
                         else {
-                            Intent intent = new Intent(OTPVerify.this, com.example.project_btl_android.MainActivity.class);
-                            intent.putExtra("phone", phone);
-                            startActivity(intent);
+
                         }
 
                     } else {

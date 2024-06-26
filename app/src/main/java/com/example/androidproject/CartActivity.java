@@ -1,6 +1,5 @@
 package com.example.androidproject;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.View;
@@ -9,7 +8,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -35,7 +33,6 @@ public class CartActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_cart);
         //Hiển thị danh sách trong giỏ hàng và biến check selectAll = fasle
         showCart();
@@ -55,10 +52,15 @@ public class CartActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (mySelectProductList != null && !mySelectProductList.isEmpty()) {
-                    Intent intent = new Intent(CartActivity.this, BillActivity.class);
+                    ArrayList<String>arrIdProducts = new ArrayList<>();
+                    for (Product p : mySelectProductList) {
+                        arrIdProducts.add(p.getId());
+                    }
+                    android.content.Intent intent = new android.content.Intent(CartActivity.this, BillActivity.class);
                     intent.putExtra("Total", Double.parseDouble(txtTotalMoneyProductSelect.getText().toString()));
-                    intent.putExtra("selectProductList", mySelectProductList);
+                    intent.putStringArrayListExtra("selectProductList", arrIdProducts);
                     intent.putExtra("Cart", cart);
+
                     startActivity(intent);
                 } else {
                     Toast.makeText(CartActivity.this, "Bạn chưa chọn sản phẩm nào", Toast.LENGTH_SHORT).show();
@@ -145,6 +147,7 @@ public class CartActivity extends AppCompatActivity {
         txtToOrder = findViewById(R.id.txtToOrder);
         //Lấy cart được gửi từ homepage -> xác định cart theo người dùng
         cart = (Cart) getIntent().getSerializableExtra("Cart");
+
         // Lấy danh sách các id sản phẩm có trong chi tiết giỏ hàng
         db.getReference("Detail_ProductCart").orderByChild("cartId").equalTo(cart.getId()).addValueEventListener(new ValueEventListener() {
             @Override

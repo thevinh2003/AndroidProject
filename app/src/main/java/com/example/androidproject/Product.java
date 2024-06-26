@@ -198,7 +198,6 @@ public class Product implements Serializable {
                         int quantity = 0;
                         for (DataSnapshot childSnapshot : snapshot.getChildren()) {
                             ProductDetailCart detail = childSnapshot.getValue(ProductDetailCart.class);
-
                             if (detail != null && detail.getProductId().equals(productId)) {
                                 quantity += detail.getQuantity();
                             }
@@ -424,7 +423,6 @@ public class Product implements Serializable {
     public CompletableFuture<Void> deleteImage(String imageUrl) {
         CompletableFuture<Void> future = new CompletableFuture<>();
         StorageReference imageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl);
-
         imageRef.delete().addOnSuccessListener(aVoid -> {
             future.complete(null);
         }).addOnFailureListener(e -> {
@@ -463,6 +461,20 @@ public class Product implements Serializable {
         CompletableFuture<Void> future = new CompletableFuture<>();
 
         db.getReference("Product").child(productId).removeValue().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                future.complete(null);
+            } else {
+                future.completeExceptionally(task.getException());
+            }
+        });
+
+        return future;
+    }
+
+    public CompletableFuture<Void> updateProductQuantity(String productId, int newQuantity) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
+        db.getReference("Product").child(productId).child("quantity").setValue(newQuantity).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 future.complete(null);
             } else {

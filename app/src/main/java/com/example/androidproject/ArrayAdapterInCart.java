@@ -3,7 +3,6 @@ package com.example.androidproject;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -37,8 +36,7 @@ public class ArrayAdapterInCart extends ArrayAdapter<Product> {
     Cart cart;
     double total;
     CartActivity mActivity;
-    SQLiteDatabase database=null;
-    FirebaseDatabase db = FirebaseDatabase.getInstance();
+    FirebaseDatabase db = new FirebaseDataBaseHelper().getFirebaseDatabase();
     ArrayList<Boolean> checkboxStates;
     private boolean isPositiveButtonClicked = false;
     private double tax = 0.0;
@@ -120,26 +118,6 @@ public class ArrayAdapterInCart extends ArrayAdapter<Product> {
             return null;
         });
 
-//        getQuantity(db, myProduct.getId(), new QuantityCallback() {
-//            @Override
-//            public void onQuantityReceived(int quantity) {
-//                if (Integer.parseInt(txtProductQuantityInCart.getText().toString()) > quantity) {
-//                    Log.d("test", "quantity product: " + quantity);
-//                    txtProductNameInCart.setEnabled(false);
-//                    txtProductQuantityInCart.setEnabled(false);
-//                    txtProductPriceInCart.setEnabled(false);
-//                    ckProductInCart.setEnabled(false);
-//                    imgVAddProductToCart.setEnabled(false);
-//                    imgVDeleteProductFromCart.setEnabled(false);
-//                    TextView txtTB = new TextView(context);
-//                    txtTB.setPadding(30, 0, 0, 0);
-//                    txtTB.setTextColor(Color.parseColor("#DB5860"));
-//                    txtTB.setText("Không đủ số lượng " + myProduct.getName());
-//                    ((ViewGroup) finalConvertView).addView(txtTB);
-//                }
-//            }
-//        });
-
         //Khi chọn 1 sản phẩm trong giỏ hàng
         //Gán giá trị checked cho checkbox theo giá trị trong mảng check ở vị trí position
         ckProductInCart.setChecked(checkboxStates.get(position));
@@ -178,6 +156,7 @@ public class ArrayAdapterInCart extends ArrayAdapter<Product> {
         imgVAddProductToCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                imgVAddProductToCart.setEnabled(false);
                 //Thêm sản phẩm
                 int n = Integer.parseInt(txtProductQuantityInCart.getText().toString());
                 txtProductQuantityInCart.setText(String.valueOf(n+1));
@@ -185,8 +164,10 @@ public class ArrayAdapterInCart extends ArrayAdapter<Product> {
                         .thenAccept(result -> {
                             toStringTotal(cart);
                             txtProductToMoneyInCart.setText(myProduct.toMoney(myProduct.getQuantityInCart()) + "");
+                            imgVAddProductToCart.setEnabled(true);
                         })
                         .exceptionally(ex -> {
+                            imgVAddProductToCart.setEnabled(true);
                             // Xử lý trường hợp ngoại lệ (nếu có)
                             Log.e("Error", "Failed to update product quantity", ex);
                             return null;
@@ -240,7 +221,7 @@ public class ArrayAdapterInCart extends ArrayAdapter<Product> {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mActivity, DetailProductActivity.class);
-                intent.putExtra("product", myProduct);
+                intent.putExtra("product", myProduct.getId());
                 intent.putExtra("Cart", mActivity.cart);
                 mActivity.startActivity(intent);
             }

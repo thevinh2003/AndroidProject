@@ -33,8 +33,8 @@ public class ViewProductManagementActivity extends AppCompatActivity {
         pId = getIntent().getStringExtra("product_id");
         product.getProductById(pId).thenAccept(p -> {
             product = p;
-            Category category = new Category();
-            category.getCategoryNameById(product.getcategoryId()).thenAccept(categoryName -> {
+            CategoryService categoryService = new CategoryService();
+            categoryService.getCategoryNameById(product.getcategoryId()).thenAccept(categoryName -> {
                 Glide.with(this)
                         .load(product.getImage())
                         .placeholder(R.drawable.placeholder) // ảnh hiển thị trong khi tải ảnh
