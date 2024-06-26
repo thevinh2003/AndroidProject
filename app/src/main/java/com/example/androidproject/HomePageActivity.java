@@ -15,6 +15,7 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -49,6 +50,18 @@ public class HomePageActivity extends AppCompatActivity {
     DatabaseReference myRef;
     Boolean isTabHostSetup = false;
     Account user;
+    ListView lvBillHistory;
+    ArrayList<Product> myListProduct, displayedProducts, myListProductToCategory;
+    ArrayAdapterInHomePage myAdapterInHomePage;
+//    ArrayAdapterHistory myArrayAdapterInHistory;
+//    ArrayList<Bill> myListBill;
+    ArrayList<Category> myListCategory;
+    String userName = null;
+    int currentTab = 1, currentItemInSpn = 0;
+    long backPressTime;
+    Spinner spnCategoryInHomePage;
+    FirebaseDatabase db;
+    DatabaseReference myRef;
     /** @noinspection deprecation*/
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +71,8 @@ public class HomePageActivity extends AppCompatActivity {
         user = new Account();
         user = (Account) getIntent().getSerializableExtra("user");
 
+        db = FirebaseDatabase.getInstance();
+        cart = new Cart();
         getCartByUserName();
         //Khi load giao diện, thực hiện thêm các control và khởi tạo tab 1
         addControl();
@@ -92,6 +107,11 @@ public class HomePageActivity extends AppCompatActivity {
         spec1 = tabHost.newTabSpec("t1");
         spec1.setContent(R.id.tab_homepage);
         spec1.setIndicator("", getResources().getDrawable(R.drawable.clutter));
+        TabHost.TabSpec spec1, spec2;
+        //Tab1
+        spec1 = tabHost.newTabSpec("t1");
+        spec1.setContent(R.id.tab_homepage);
+        spec1.setIndicator("", getResources().getDrawable(R.drawable.home));
         tabHost.addTab(spec1);
         //Tab2
         spec2 = tabHost.newTabSpec("t2");
@@ -103,6 +123,8 @@ public class HomePageActivity extends AppCompatActivity {
         spec3.setContent(R.id.tab_favorite);
         spec3.setIndicator("", getResources().getDrawable(R.drawable.oder_history));
         tabHost.addTab(spec3);
+        spec2.setIndicator("", getResources().getDrawable(R.drawable.history));
+        tabHost.addTab(spec2);
 
         //Khi chuyển tab
         tabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
@@ -113,6 +135,8 @@ public class HomePageActivity extends AppCompatActivity {
                 }
                 if (tabId.equals("t2")) {
                     Toast.makeText(HomePageActivity.this, "Chưa có sản phẩm yêu thích", Toast.LENGTH_SHORT).show();
+                if (tabId.equals("t2")) {
+                    tab2_action();
                 }
                 else {
                     tab1_action();
@@ -126,6 +150,7 @@ public class HomePageActivity extends AppCompatActivity {
         txtNumberProductOfCart = findViewById(R.id.txtNumberProductOfCart);
         imgBtnCartInHomePage = findViewById(R.id.imgBtnCartInHomePage);
 //        lvBillHistory = findViewById(R.id.lvBillHistory);
+        lvBillHistory = findViewById(R.id.lvBillHistory);
         spnCategoryInHomePage = findViewById(R.id.spnCategoryInHomePage);
         myListProduct = new ArrayList<>();
         displayedProducts = new ArrayList<>();
@@ -312,6 +337,35 @@ public class HomePageActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
+//        currentTab = 2;
+//        lvBillHistory = findViewById(R.id.lvBillHistory);
+//        myListBill = new ArrayList<>();
+
+        //Lấy danh sách các đơn hàng của người dùng từ CSDL
+//        db.getReference("Bill").orderByChild("userName").equalTo(userName).addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                for (DataSnapshot data: snapshot.getChildren()) {
+//                    Bill bill = data.getValue(Bill.class);
+//                    myListBill.add(bill);
+//                }
+//                // Load lên giao diện
+//                if(myListBill.isEmpty()){
+//                    Toast.makeText(HomePageActivity.this, "Bạn chưa có đơn hàng nào", Toast.LENGTH_SHORT).show();
+//                }
+//                else{
+//                    myArrayAdapterInHistory = new ArrayAdapterHistory(HomePageActivity.this, R.layout.layout_item_bill_history, myListBill);
+//                    lvBillHistory.setAdapter(myArrayAdapterInHistory);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                Toast.makeText(getApplicationContext(), "Load data failed "+error.toString(),
+//                        Toast.LENGTH_SHORT).show();
+//            }
+//        });
+
     }
 
     //Đếm số sản phẩm trong giỏ hàng
@@ -433,11 +487,16 @@ public class HomePageActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 myListProduct.clear();
+        myListProduct.clear();
+        db.getReference("Product").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot userSnapshot : snapshot.getChildren()) {
                     Product product = userSnapshot.getValue(Product.class);
                     myListProduct.add(product);
                 }
 //                myAdapterInHomePage.notifyDataSetChanged();
+                myAdapterInHomePage.notifyDataSetChanged();
                 myListProductToCategory.addAll(myListProduct);
                 myAdapterInHomePage = new ArrayAdapterInHomePage(HomePageActivity.this, R.layout.layout_product_homepage, myListProductToCategory);
                 gvProductInHomePage.setAdapter(myAdapterInHomePage);
@@ -457,5 +516,8 @@ public class HomePageActivity extends AppCompatActivity {
         cart.setId(cartId);
         cart.setUserId(user.getId());
 
+        userName = getIntent().getStringExtra("userName");
+        String cartId = getIntent().getStringExtra("cartId");
+        cart.setId(cartId);
     }
 }

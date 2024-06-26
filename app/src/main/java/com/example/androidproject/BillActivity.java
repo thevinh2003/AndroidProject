@@ -18,6 +18,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.example.androidproject.Product;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -193,7 +194,6 @@ public class BillActivity extends AppCompatActivity {
             }
         });
     }
-
     private void display() {
         // Đưa danh sách sản phẩm lên giao diện
         myAdapterInBill = new ArrayAdapterInBill(BillActivity.this, R.layout.layout_product_inbill, myProductListInBill);
@@ -284,6 +284,55 @@ public class BillActivity extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Failed to add bill", Toast.LENGTH_SHORT).show();
                             }
                         });
+//                Bill bill = new Bill(id, cart.getUserId(), formattedDate, Double.parseDouble(txtTotalMoneyWithTax.getText().toString()), edtAddress.getText().toString() , "wait");
+//
+//                db.getReference("Bill").child(id).setValue(bill)
+//                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+//                                List<CompletableFuture<Void>> futures = new ArrayList<>();
+//                                for (Product product : myProductListInBill) {
+//                                    // Thêm detail bill
+//                                    DetailBillProduct detailBillProduct = new DetailBillProduct(bill.getId(), product.getId(), product.getQuantityInCart());
+//                                    DetailBillProductService detailBillProductService = new DetailBillProductService();
+//                                    CompletableFuture<Void> futureAddDetail = detailBillProductService.addDetailProductBill(detailBillProduct);
+//                                    futures.add(futureAddDetail);
+//                                    // Lấy số lượng sản phẩm
+//                                    CompletableFuture<Integer> futureGetQuantity = product.quantityInCart(cart, product.getId());
+//                                    futures.add(futureGetQuantity.thenCompose(quantity -> {
+//                                        // Giảm số lượng sản phẩm có trong hệ thống
+//                                        return product.updateProductQuantity(product.getId(), product.getQuantity() - quantity);
+//                                    }).exceptionally(throwable -> {
+//                                        Toast.makeText(getApplicationContext(), "Failed to update product quantity: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+//                                        return null;
+//                                    }));
+//
+//                                    // Xóa sản phẩm ra khỏi giỏ hàng
+//                                    CompletableFuture<Void> futureDeleteCart = product.deleteProductFromCart(cart, product.getId());
+//                                    futures.add(futureDeleteCart);
+//
+//                                    // Đặt lại quantityInCart
+//                                    product.setQuantityInCart(0);
+//                                }
+//
+//                                // Chờ tất cả các tác vụ hoàn tất
+//                                CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).thenRun(() -> {
+//                                    txtOrder.setText("Đặt hàng thành công");
+//                                    txtOrder.setEnabled(false);
+//                                    myAdapterInBill.notifyDataSetChanged();
+//                                    showMessage();
+//                                }).exceptionally(throwable -> {
+//                                    Toast.makeText(getApplicationContext(), "Failed to complete all tasks: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+//                                    return null;
+//                                });
+//                            }
+//                        })
+//                        .addOnFailureListener(new OnFailureListener() {
+//                            @Override
+//                            public void onFailure(@NonNull Exception e) {
+//                                Toast.makeText(getApplicationContext(), "Failed to add bill", Toast.LENGTH_SHORT).show();
+//                            }
+//                        });
             }
         });
 

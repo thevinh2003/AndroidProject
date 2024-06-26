@@ -57,7 +57,7 @@ public class DetailBillProductService {
     public CompletableFuture<ArrayList<DetailBillProduct>> getDetailBillsByBillId(String billId) {
         CompletableFuture<ArrayList<DetailBillProduct>> future = new CompletableFuture<>();
 
-        db.addListenerForSingleValueEvent(new ValueEventListener() {
+        db.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 ArrayList<DetailBillProduct> detailBills = new ArrayList<>();
